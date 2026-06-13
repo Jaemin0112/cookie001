@@ -302,7 +302,7 @@
                     <h2 class="text-xl font-black text-white">서버 담당자 응답 대기 중</h2>
                     <p class="text-xs text-zinc-400 leading-relaxed">
                         유저님의 문의 접수건이 실시간 관리자 연동망에 등록되었습니다. <br>
-                        창을 끄지 마시고 잠시만 기다리시면, 담당자가 수락하는 즉시 이 화면이 1:1 라이브 채팅 상담방으로 전환됩니다.
+                        창을 끄지 마시고 잠시만 기다리시면, 담당자가 수락하는 즉시 이 화면이 1:1 상담방으로 전환됩니다.
                     </p>
                 </div>
 
@@ -327,7 +327,7 @@
                 </div>
 
                 <div id="mock-admin-notice" class="text-[10px] text-zinc-600 bg-zinc-900/40 py-2.5 rounded border border-zinc-900">
-                    💡 테스트용 로컬 안내: 독립 실행 환경에서는 <strong>약 5초 후 자동으로 가상의 봇 관리자 김민우 상담사</strong>님이 문의를 수락하고 실시간 채팅 데모를 시작합니다!
+                    💡 테스트용 로컬 안내: 독립 실행 환경에서는 <strong>약 5초 후 자동으로 관리자 김민우 상담사</strong>님이 문의를 수락하고 실시간 채팅 데모를 시작합니다!
                 </div>
 
                 <div>
@@ -406,7 +406,7 @@
                     <div class="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div>
                             <span class="bg-white/10 text-white border border-zinc-800 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase">On-Duty</span>
-                            <h2 class="text-xl font-black text-white mt-1.5">상담관 라이브 관리 제어실</h2>
+                            <h2 class="text-xl font-black text-white mt-1.5">상담관 관리 제어실</h2>
                             <p class="text-xs text-zinc-400 mt-1">실시간으로 접수되는 유저 대기열을 받아 1:1 상담 연결을 시작할 수 있습니다.</p>
                         </div>
                         <div class="flex gap-2">
@@ -973,10 +973,10 @@
                 if (currentTicketId !== ticketData.id) return;
                 
                 currentTicketData.status = 'active';
-                currentTicketData.adminName = '김민우 상담실장 [AI]';
+                currentTicketData.adminName = '김민우 상담실장';
                 currentTicketData.adminId = 'mock_admin_1';
 
-                showCustomToast('success', '김민우 상담실장님이 상담을 수락하고 라이브 채팅에 입장했습니다.');
+                showCustomToast('success', '김민우 상담실장님이 상담을 수락하고 채팅에 입장했습니다.');
                 
                 document.getElementById('chat-agent-name').innerText = currentTicketData.adminName;
                 document.getElementById('chat-ticket-title').innerText = currentTicketData.ticketTitle;
@@ -984,9 +984,9 @@
 
                 mockMessages = [
                     {
-                        senderName: '김민우 상담실장 [AI]',
+                        senderName: '김민우 상담실장',
                         role: 'admin',
-                        text: '반갑습니다. 쿠키서버 1:1 라이브 지원실입니다. 접수해주신 [' + ticketData.ticketTitle + '] 건에 대해 빠르게 도와드리겠습니다. 추가 전송할 세부 상황이 있다면 말씀해 주세요.',
+                        text: '반갑습니다. 쿠키서버 고객센터 입니다. 접수해주신 [' + ticketData.ticketTitle + '] 건에 대해 빠르게 도와드리겠습니다. 추가 전송할 세부 상황이 있다면 말씀해 주세요.',
                         timestamp: Date.now()
                     }
                 ];
@@ -1105,7 +1105,7 @@
             setTimeout(() => {
                 if (currentTicketId) {
                     mockMessages.push({
-                        senderName: '김민우 상담실장 [AI]',
+                        senderName: '김민우 상담실장',
                         role: 'admin',
                         text: replyText,
                         timestamp: Date.now()
@@ -1295,7 +1295,7 @@
                 await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', ticketId), {
                     status: 'active',
                     adminId: userId,
-                    adminName: '쿠키지원 담당관'
+                    adminName: '쿠키서버 담당관'
                 });
                 
                 showCustomToast('success', '성공적으로 유저 문의를 수락했습니다.');
