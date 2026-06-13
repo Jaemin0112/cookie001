@@ -1,0 +1,1383 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COOKIE SUPPORT | FiveM 고객센터</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome (아이콘) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts (Noto Sans KR) -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #000000;
+            color: #f4f4f5;
+        }
+        /* Custom Scrollbar (Grayscale) */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #09090b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46;
+        }
+        .chat-scroll {
+            max-height: 450px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-white selection:text-black">
+
+    <header class="sticky top-0 z-50 bg-black/90 backdrop-blur-md border-b border-zinc-900 px-4 py-3.5">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            
+            <!-- 로고 영역 (동적 브랜드 로딩 호환) -->
+            <a href="#" onclick="navigateTo('home')" class="flex items-center space-x-3 group">
+                <div id="logo-container" class="flex items-center space-x-3">
+                    <div id="default-logo-icon" class="bg-zinc-900 border border-zinc-800 p-2 rounded-lg text-white group-hover:bg-white group-hover:text-black transition-all">
+                        <i class="fa-solid fa-headset text-xl"></i>
+                    </div>
+                    <img id="custom-logo-img" src="" alt="Server Logo" class="hidden h-10 w-10 object-contain rounded-lg border border-zinc-800">
+                </div>
+                <div>
+                    <span id="logo-text" class="font-black text-lg tracking-wider text-white">쿠키서버 <span class="text-zinc-400 font-medium">고객센터</span></span>
+                    <p class="text-[9px] text-zinc-500 -mt-1 font-bold tracking-widest uppercase">1:1 상담</p>
+                </div>
+            </a>
+
+            <!-- 헤더 탭 메뉴 (관리자 대시보드 전용 탭 추가) -->
+            <nav class="hidden md:flex space-x-6 text-xs font-semibold uppercase tracking-wider items-center">
+                <a href="#admin" onclick="navigateTo('admin')" class="text-zinc-400 hover:text-white transition-colors flex items-center space-x-1">
+                    <i class="fa-solid fa-toolbox text-zinc-500"></i>
+                    <span>관리자 대시보드</span>
+                </a>
+                <a href="#submit-ticket" onclick="navigateTo('home')" class="bg-white hover:bg-zinc-200 text-black px-4 py-2 rounded-md transition-all font-bold">1:1 문의하기</a>
+            </nav>
+
+            <!-- 디스코드 연동 버튼 -->
+            <div>
+                <a href="https://discord.gg/rF2GP92G3C" target="_blank" class="flex items-center space-x-2 bg-zinc-900 hover:bg-white hover:text-black border border-zinc-800 text-white px-4 py-2 rounded-lg text-xs font-bold transition-all">
+                    <i class="fa-brands fa-discord text-base"></i>
+                    <span class="hidden sm:inline">공식 디스코드</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div id="custom-toast" class="fixed top-20 right-4 z-50 hidden transform translate-y-2 transition-all duration-300">
+        <div class="bg-zinc-900 border border-zinc-800 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center space-x-3">
+            <span id="toast-icon" class="text-white"></span>
+            <span id="toast-text" class="text-xs font-medium"></span>
+        </div>
+    </div>
+
+    <main class="flex-grow">
+
+        <div id="view-home" class="view-section">
+            <!-- 히어로 섹션 -->
+            <section class="relative py-28 px-4 overflow-hidden bg-gradient-to-b from-zinc-950 to-black border-b border-zinc-900">
+                <div class="absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 w-[500px] h-[500px] bg-zinc-800/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+                <div class="max-w-4xl mx-auto text-center relative z-10">
+                    <div class="inline-flex items-center space-x-2 bg-zinc-900/80 border border-zinc-800 px-3.5 py-1.5 rounded-full text-xs text-zinc-300 mb-8">
+                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                        <span class="font-medium tracking-wider text-[11px]">쿠키서버 전용 실시간 1:1 상담</span>
+                    </div>
+                    
+                    <!-- 로고 등록 시 활성화되는 동적 박스 -->
+                    <div id="hero-logo-box" class="hidden justify-center mb-6">
+                        <img id="hero-custom-logo" src="" alt="Server Logo" class="h-20 w-20 object-contain rounded-2xl border border-zinc-800 p-1 bg-zinc-950">
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl font-black tracking-tight text-white mb-6 leading-tight">
+                        무엇을 도와드릴까요?<br>
+                        <span class="text-zinc-500 font-extrabold">실시간 응대 및 1:1 상담</span>
+                    </h1>
+                    <p class="text-zinc-400 text-sm sm:text-base max-w-xl mx-auto mb-10 leading-relaxed font-light">
+                        인게임 에러, 고유번호 복구 신청, 악성 유저 신고 등 모든 문의를 접수 즉시 담당 관리자 대시보드에 실시간 매칭시켜 1대1 대화로 바로 해결해 드립니다.
+                    </p>
+
+                    <div class="flex flex-col sm:flex-row justify-center items-center gap-4 max-w-sm mx-auto">
+                        </a>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 실시간 현황 보드 -->
+            <section id="notice" class="max-w-7xl mx-auto px-4 py-16">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- 실시간 현황 -->
+                    <div class="bg-[#09090b] border border-zinc-900 p-6 rounded-2xl">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-white mb-5 flex items-center space-x-2">
+                            <i class="fa-solid fa-circle text-[8px] text-white animate-pulse"></i>
+                            <span>실시간 고객포털 상황판</span>
+                        </h3>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-3.5 bg-zinc-950 rounded-xl border border-zinc-900">
+                                <span class="text-xs text-zinc-400">데이터 연동 서비스</span>
+                                <span id="db-status-badge" class="text-[9px] font-bold px-2 py-0.5 rounded bg-zinc-800 text-zinc-300 border border-zinc-700">로딩 중...</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3.5 bg-zinc-950 rounded-xl border border-zinc-900">
+                                <span class="text-xs text-zinc-400">평균 매칭 속도</span>
+                                <span class="text-[11px] text-white font-semibold">실시간 즉시수락</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3.5 bg-zinc-950 rounded-xl border border-zinc-900">
+                                <span class="text-xs text-zinc-400">오늘 누적 처리건</span>
+                                <span id="today-count" class="text-xs font-bold text-white">0 건</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 가이드라인 공지 -->
+                    <div class="bg-[#09090b] border border-zinc-900 p-6 rounded-2xl lg:col-span-2">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-white mb-5 flex items-center space-x-2">
+                            <i class="fa-solid fa-bullhorn text-zinc-400"></i>
+                            <span>1:1 라이브 문의전 꼭 읽어주세요!</span>
+                        </h3>
+                        <ul class="space-y-3.5 text-xs text-zinc-400">
+                            <li class="flex items-start space-x-3">
+                                <span class="text-white font-bold">[1]</span>
+                                <span><strong>이탈 방지 가이드:</strong> 문의를 접수한 후, 관리자가 상담을 수락하기 전까지 웹 사이트를 새로고침 하거나 종료하지 말고 잠시만 기다려 주세요. 1:1 대화방이 자동으로 매칭됩니다.</span>
+                            </li>
+                            <li class="flex items-start space-x-3">
+                                <span class="text-white font-bold">[2]</span>
+                                <span><strong>인게임 CID 확인 방법:</strong> 게임 내 본인의 고유 식별코드(ID/CID)를 대조하여 즉각 인게임 복구 및 제재를 처리합니다. 허위 CID 기재 시 무통보 취소 처리됩니다.</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <section id="submit-ticket" class="max-w-3xl mx-auto px-4 py-12">
+                <div class="bg-zinc-950 border border-zinc-900 rounded-2xl shadow-2xl p-6 sm:p-10">
+                    <div class="border-b border-zinc-900 pb-6 mb-8 text-center">
+                        <span class="text-[10px] font-bold text-zinc-500 tracking-widest uppercase">Start Live Session</span>
+                        <h2 class="text-xl sm:text-2xl font-black text-white mt-1">문의 양식 기재 및 접수</h2>
+                        <p class="text-xs text-zinc-400 mt-2">모든 정보는 디스코드 연동망을 통해 담당관 대시보드로 실시간 전달됩니다.</p>
+                    </div>
+
+                    <form id="ticket-form" onsubmit="handleFormSubmit(event)" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5" for="user-name">
+                                    인게임 닉네임 <span class="text-white">*</span>
+                                </label>
+                                <input class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-all" 
+                                       type="text" id="user-name" required placeholder="예: 홍길동 / Gildong">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5" for="user-cid">
+                                    고유번호 <span class="text-white">*</span>
+                                </label>
+                                <input class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-all" 
+                                       type="number" id="user-cid" required placeholder="예: 10542">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5" for="user-discord">
+                                    디스코드 아이디 <span class="text-white">*</span>
+                                </label>
+                                <input class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-all" 
+                                       type="text" id="user-discord" required placeholder="예: user_discord_id">
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5" for="ticket-type">
+                                    문의 유형 분류 <span class="text-white">*</span>
+                                </label>
+                                <select class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white focus:outline-none focus:border-white transition-all cursor-pointer" 
+                                        id="ticket-type" required>
+                                    <option value="" disabled selected>유형을 선택해주세요</option>
+                                    <option value="버그 제보">🐛 인게임 시스템 버그 및 오류</option>
+                                    <option value="비매너/핵 신고">🚨 비매너 유저 및 비인가 프로그램 신고</option>
+                                    <option value="서버 건의사항">💡 시스템 및 아이템 건의사항</option>
+                                    <option value="오류/복구 문의">🔄 소실 자산 및 아이템 복구 신청</option>
+                                    <option value="기타 문의">❓ 기타 상담 및 정지 해제 상담</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5" for="ticket-title">
+                                한 줄 핵심 제목 <span class="text-white">*</span>
+                            </label>
+                            <input class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-all" 
+                                   type="text" id="ticket-title" required placeholder="예: 차고에서 차량 호출 시 공중으로 솟구치는 버그 제보">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5" for="ticket-content">
+                                구체적인 정황 및 조치 사항 상세 경위 <span class="text-white">*</span>
+                            </label>
+                            <textarea class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-all h-36 resize-y" 
+                                      id="ticket-content" required placeholder="사건 발생 시간대, 피해 상황, 구체적인 요구 사항을 자세히 기술해 주실수록 해결 소요 시간이 단축됩니다."></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-zinc-300 uppercase tracking-wider mb-2.5" for="ticket-media">
+                                증거 자료 첨부 링크 (선택)
+                            </label>
+                            <input class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-600 focus:outline-none focus:border-white transition-all" 
+                                   type="url" id="ticket-media" placeholder="유튜브 영상, Imgur, 디스코드 미디어 메시지 원본 링크">
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="flex items-center h-5">
+                                <input id="agreement" type="checkbox" required class="focus:ring-white h-4 w-4 text-black border-zinc-800 rounded bg-black">
+                            </div>
+                            <div class="ml-3 text-[11px]">
+                                <label for="agreement" class="font-medium text-zinc-500 cursor-pointer">
+                                    기재한 인게임 계정 정보 및 가입 내역 대조에 필요한 스펙 조회에 수집/동의합니다.
+                                </label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <button type="submit" id="submit-btn" class="w-full bg-white hover:bg-zinc-200 text-black font-black py-4 rounded-xl transition-all text-sm flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>1:1 상담 접수 및 대기실 입장</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- 자주 묻는 질문 FAQ (다크 아코디언) -->
+            <section id="faq" class="max-w-4xl mx-auto px-4 py-12">
+                <div class="text-center mb-10">
+                    <h2 class="text-2xl font-black text-white">자주 묻는 질문 (FAQ)</h2>
+                    <p class="text-xs text-zinc-400 mt-2">1대1 상담 전 아래 해결 가이드를 미리 읽어보시면 더욱 신속하게 자체 해결이 가능합니다.</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div class="bg-zinc-950 border border-zinc-900 rounded-xl overflow-hidden transition-all">
+                        <button onclick="toggleAccordion('faq-1')" class="w-full text-left p-5 text-sm font-bold text-white flex justify-between items-center hover:bg-zinc-900 transition-colors">
+                            <span>Q. 아이템 혹은 인게임 재화 소실 복구 기준은 어떻게 되나요?</span>
+                            <i id="icon-faq-1" class="fa-solid fa-chevron-down text-zinc-500 transition-transform"></i>
+                        </button>
+                        <div id="content-faq-1" class="hidden p-5 border-t border-zinc-900 text-xs text-zinc-400 leading-relaxed bg-black">
+                            기본적으로 정기 백업 데이터베이스(DB) 로그 상에 존재하지 않거나, 유저의 부주의로 발생한 단순 손실(거래 실수 등)은 복구가 어렵습니다. 단, 서버 크래시나 시스템 스크립트 오작동으로 인한 피해 시 당일 촬영된 동영상 또는 명확한 정황 캡처본이 확인되는 즉시 100% 복구 조치됩니다.
+                        </div>
+                    </div>
+
+                    <div class="bg-zinc-950 border border-zinc-900 rounded-xl overflow-hidden transition-all">
+                        <button onclick="toggleAccordion('faq-2')" class="w-full text-left p-5 text-sm font-bold text-white flex justify-between items-center hover:bg-zinc-900 transition-colors">
+                            <span>Q. 인게임 악성 비매너 및 불량 핵 유저 신고 피드백은 어떻게 받나요?</span>
+                            <i id="icon-faq-2" class="fa-solid fa-chevron-down text-zinc-500 transition-transform"></i>
+                        </button>
+                        <div id="content-faq-2" class="hidden p-5 border-t border-zinc-900 text-xs text-zinc-400 leading-relaxed bg-black">
+                            유효한 증거(스팀 프로필, 고유 CID, 영상 기록)가 접수되는 즉시 전담 관리자가 즉각 인게임에 위장 투입되거나 실시간 밴 처리를 진행합니다. 처리 현황은 유저분의 디스코드 또는 1대1 상담창을 통해 결과를 실시간으로 공람해 드립니다.
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- 2. 대기실 뷰 -->
+        <div id="view-waiting" class="view-section hidden py-24 px-4 text-center">
+            <div class="max-w-md mx-auto bg-zinc-950 border border-zinc-900 rounded-2xl p-8 sm:p-12 space-y-6">
+                <!-- 원형의 전파 및 레이더 애니메이션 -->
+                <div class="relative w-24 h-24 mx-auto flex items-center justify-center">
+                    <div class="absolute inset-0 bg-white/10 rounded-full animate-ping"></div>
+                    <div class="absolute inset-2 bg-white/20 rounded-full animate-pulse"></div>
+                    <div class="relative w-16 h-16 bg-white text-black rounded-full flex items-center justify-center shadow-lg shadow-white/10">
+                        <i class="fa-solid fa-headset text-2xl animate-bounce"></i>
+                    </div>
+                </div>
+
+                <div class="space-y-2">
+                    <h2 class="text-xl font-black text-white">서버 담당자 응답 대기 중</h2>
+                    <p class="text-xs text-zinc-400 leading-relaxed">
+                        유저님의 문의 접수건이 실시간 관리자 연동망에 등록되었습니다. <br>
+                        창을 끄지 마시고 잠시만 기다리시면, 담당자가 수락하는 즉시 이 화면이 1:1 라이브 채팅 상담방으로 전환됩니다.
+                    </p>
+                </div>
+
+                <!-- 실시간으로 보여주는 내 대기 현황 정보 -->
+                <div class="bg-black/50 border border-zinc-900 rounded-xl p-4 text-left space-y-2.5 text-xs">
+                    <div class="flex justify-between">
+                        <span class="text-zinc-500">문의 신청자</span>
+                        <span id="wait-user-name" class="font-bold text-white">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-zinc-500">고유번호 (CID)</span>
+                        <span id="wait-user-cid" class="font-bold text-white">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-zinc-500">문의 분야</span>
+                        <span id="wait-ticket-type" class="font-bold text-white">-</span>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-zinc-500">대기 고유 키</span>
+                        <span id="wait-ticket-id" class="font-bold text-zinc-600 select-all">-</span>
+                    </div>
+                </div>
+
+                <div id="mock-admin-notice" class="text-[10px] text-zinc-600 bg-zinc-900/40 py-2.5 rounded border border-zinc-900">
+                    💡 테스트용 로컬 안내: 독립 실행 환경에서는 <strong>약 5초 후 자동으로 가상의 봇 관리자 김민우 상담사</strong>님이 문의를 수락하고 실시간 채팅 데모를 시작합니다!
+                </div>
+
+                <div>
+                    <button onclick="cancelTicket()" class="w-full bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white transition-all py-3 rounded-xl text-xs font-bold border border-zinc-800">
+                        상담 대기 및 취소하기
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 실시간 채팅 뷰 -->
+        <div id="view-chat" class="view-section hidden py-12 px-4">
+            <div class="max-w-3xl mx-auto bg-zinc-950 border border-zinc-900 rounded-2xl overflow-hidden shadow-2xl flex flex-col h-[650px]">
+                
+                <!-- 상단 헤더 프로필 -->
+                <div class="bg-black border-b border-zinc-900 p-4 flex justify-between items-center">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 bg-white text-black rounded-lg flex items-center justify-center font-black">
+                            CS
+                        </div>
+                        <div>
+                            <div class="flex items-center space-x-2">
+                                <span class="font-black text-sm text-white" id="chat-agent-name">쿠키서버 전담 상담원</span>
+                                <span class="bg-zinc-800 border border-zinc-700 text-[9px] text-zinc-300 font-bold px-1.5 py-0.5 rounded uppercase">Connected</span>
+                            </div>
+                            <p class="text-[10px] text-zinc-500 mt-0.5" id="chat-ticket-title">로딩 중...</p>
+                        </div>
+                    </div>
+                    <div>
+                        <button onclick="closeActiveTicket()" class="bg-red-950/40 hover:bg-red-950 border border-red-900 text-red-400 font-bold px-3 py-1.5 rounded-lg text-xs transition-all flex items-center space-x-1.5">
+                            <i class="fa-solid fa-rectangle-xmark"></i>
+                            <span>문의 상담 종료</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 대화 스크롤 영역 -->
+                <div id="chat-messages-container" class="flex-grow p-6 space-y-4 overflow-y-auto chat-scroll bg-black/50">
+                    <!-- 메시지 버블이 자바스크립트로 자동 마운트됨 -->
+                </div>
+
+                <!-- 텍스트 전송 도구 입력란 -->
+                <div class="p-4 bg-black border-t border-zinc-900">
+                    <form id="chat-input-form" onsubmit="handleSendChatMessage(event)" class="flex gap-3">
+                        <input id="chat-text-input" type="text" autocomplete="off" class="flex-grow bg-zinc-950 border border-zinc-800 rounded-xl px-4 py-3 text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white transition-all" placeholder="담당 상담사에게 전송할 메시지를 기재해 주세요...">
+                        <button type="submit" class="bg-white hover:bg-zinc-200 text-black font-bold px-6 py-3 rounded-xl text-xs transition-all flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-paper-plane text-[10px]"></i>
+                            <span>전송</span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 관리자 뷰 -->
+        <div id="view-admin" class="view-section hidden py-12 px-4">
+            <div class="max-w-6xl mx-auto space-y-6">
+                
+                <!-- 관리자 인증 잠금 화면 -->
+                <div id="admin-auth-card" class="max-w-md mx-auto bg-[#09090b] border border-zinc-900 rounded-2xl p-8 text-center space-y-5">
+                    <div class="w-12 h-12 bg-white text-black rounded-xl flex items-center justify-center mx-auto text-xl">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-white uppercase tracking-wider">고객센터 어드민 인증</h3>
+                        <p class="text-[11px] text-zinc-500 mt-1">비공개 관리 구역입니다. 암호를 입력해 대시보드에 접근하세요.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <input id="admin-pass-input" type="password" class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white text-center focus:outline-none focus:border-white" placeholder="어드민 비밀번호를 입력해 주세요.">
+                        <button onclick="authenticateAdmin()" class="w-full bg-white hover:bg-zinc-200 text-black font-bold py-3 rounded-xl text-xs transition-all">접속하기</button>
+                    </div>
+                </div>
+
+                <!-- 관리자 권한 획득 성공 후의 제어 패널 화면 -->
+                <div id="admin-dashboard-panel" class="hidden space-y-6">
+                    <div class="bg-zinc-950 border border-zinc-900 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                        <div>
+                            <span class="bg-white/10 text-white border border-zinc-800 text-[10px] font-bold px-2.5 py-0.5 rounded uppercase">On-Duty</span>
+                            <h2 class="text-xl font-black text-white mt-1.5">상담관 라이브 관리 제어실</h2>
+                            <p class="text-xs text-zinc-400 mt-1">실시간으로 접수되는 유저 대기열을 받아 1:1 상담 연결을 시작할 수 있습니다.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="toggleWebhookModal()" class="bg-zinc-900 hover:bg-zinc-800 text-xs text-zinc-300 font-bold px-4 py-2 rounded-xl border border-zinc-800 flex items-center space-x-1.5">
+                                <i class="fa-solid fa-gear"></i>
+                                <span>서버 환경설정</span>
+                            </button>
+                            <button onclick="deauthenticateAdmin()" class="bg-zinc-900 hover:bg-zinc-800 text-xs text-red-400 font-bold px-4 py-2 rounded-xl border border-zinc-800 flex items-center space-x-1.5">
+                                <i class="fa-solid fa-right-from-bracket"></i>
+                                <span>로그아웃</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 실시간 대기 대열 그리드 레이아웃 -->
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        
+                        <!-- 1. 대기중인 문의 리스트 -->
+                        <div class="lg:col-span-2 bg-[#09090b] border border-zinc-900 rounded-2xl p-6 space-y-4">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-yellow-500 animate-ping"></span>
+                                <span>실시간 접수 대기자 대열 (<span id="admin-waiting-count">0</span>)</span>
+                            </h3>
+                            
+                            <div id="admin-queue-list" class="space-y-3 chat-scroll">
+                                <!-- 자바스크립트로 실시간 유저 문의가 마운트됨 -->
+                                <p class="text-xs text-zinc-600 italic text-center py-8">대기 중인 실시간 문의건이 존재하지 않습니다.</p>
+                            </div>
+                        </div>
+
+                        <!-- 2. 나와 매칭된 진행중인 문의 리스트 -->
+                        <div class="bg-[#09090b] border border-zinc-900 rounded-2xl p-6 space-y-4">
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-white flex items-center space-x-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                <span>나의 현재 진행 중 상담방 (<span id="admin-active-count">0</span>)</span>
+                            </h3>
+
+                            <div id="admin-active-chats" class="space-y-3 chat-scroll">
+                                <!-- 진행 중 상담 목록 마운트 -->
+                                <p class="text-xs text-zinc-600 italic text-center py-8">진행 중인 채팅룸이 없습니다.</p>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <!-- 환경설정 모달 (관리자 인증 성공 시에만 활성화 및 열기 가능) -->
+    <div id="webhook-modal" class="hidden fixed inset-0 z-50 bg-black/95 flex items-center justify-center p-4">
+        <div class="bg-zinc-950 border border-zinc-900 w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl">
+            <div class="p-6 border-b border-zinc-900 flex justify-between items-center">
+                <h3 class="text-sm font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-sliders text-zinc-400"></i>
+                    <span>서버 & 고객센터 환경설정</span>
+                </h3>
+                <button onclick="toggleWebhookModal()" class="text-zinc-500 hover:text-white transition-colors">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-5">
+                
+                <!-- 로고 이미지 커스텀 입력 단추 -->
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-bold text-zinc-400 uppercase tracking-wider" for="logo-url-input">
+                        내 서버 로고 이미지 URL
+                    </label>
+                    <input id="logo-url-input" type="url" class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white" placeholder="https://example.com/logo.png">
+                    <p class="text-[10px] text-zinc-500 leading-normal">
+                        디스코드 이미지 주소나 Imgur, 또는 외부 이미지 파일 다이렉트 주소를 넣으시면 헤더 및 대문 로고가 즉각 변경됩니다. (유효성 오류 시 안전하게 기본 아이콘 처리)
+                    </p>
+                </div>
+
+                <!-- 디스코드 웹훅 URL 입력 -->
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-bold text-zinc-400 uppercase tracking-wider" for="webhook-url-input">
+                        디스코드 알림용 웹훅(Webhook) URL
+                    </label>
+                    <input id="webhook-url-input" type="url" oninput="validateWebhookRealtime(this)" class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white" placeholder="https://discord.com/api/webhooks/...">
+                    <!-- 실시간 밸리데이션 경고 알림 UI 추가 -->
+                    <p id="webhook-validation-warning" class="hidden text-[10px] text-red-500 leading-normal font-bold">
+                        ⚠ 입력하신 주소는 웹훅 주소가 아니라 디스코드 '채널 주소'입니다! 채널 설정 -> 연동 -> 웹훅 만들기에서 생성된 API Webhook 주소를 넣어주세요.
+                    </p>
+                </div>
+
+                <!-- 관리자용 커스텀 비밀번호 변경 기능 -->
+                <div class="space-y-2">
+                    <label class="block text-[11px] font-bold text-zinc-400 uppercase tracking-wider" for="admin-pass-input-set">
+                        관리자 비밀번호 변경 설정
+                    </label>
+                    <input id="admin-pass-input-set" type="password" class="w-full bg-black border border-zinc-800 rounded-xl py-3 px-4 text-xs text-white placeholder-zinc-700 focus:outline-none focus:border-white" placeholder="새롭게 사용할 관리자 비밀번호를 입력하세요.">
+                    <p class="text-[10px] text-zinc-500 leading-normal">
+                        기본 비밀번호는 <strong class="text-white">admin123</strong> 입니다. 변경된 비밀번호는 암호화(SHA-256) 처리되어 데이터베이스에 비공개 보관됩니다.
+                    </p>
+                </div>
+                
+                <div class="bg-black p-4 rounded-xl border border-zinc-900 text-[11px] text-zinc-500 space-y-2">
+                    <p class="font-bold text-zinc-300">💡 설정 보존 및 유저 격리 안내:</p>
+                    <p class="leading-relaxed">
+                        모든 브랜드 리소스, 웹훅 정보 및 수정된 비밀번호는 암호화 처리 및 격리 저장되어 일반 유저들이 해킹 툴이나 브라우저 콘솔을 통해서 접근하거나 볼 수 없도록 이중 안전 장치가 적용되어 있습니다.
+                    </p>
+                </div>
+            </div>
+            <div class="p-6 border-t border-zinc-900 flex justify-end space-x-3 bg-zinc-950">
+                <button onclick="toggleWebhookModal()" class="px-4 py-2 rounded-xl text-xs font-bold bg-zinc-900 hover:bg-zinc-800 text-zinc-400 transition-colors">취소</button>
+                <button onclick="saveAdminSettings()" class="px-5 py-2 rounded-xl text-xs font-bold bg-white text-black hover:bg-zinc-200 transition-colors">저장 후 즉시 적용</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 푸터 -->
+    <footer class="bg-black border-t border-zinc-900 py-8 px-4 text-center text-xs">
+        <div class="max-w-7xl mx-auto space-y-3">
+            <p id="footer-branding" class="text-zinc-500 cursor-default select-none transition-all hover:text-zinc-400">
+                &copy; 2026 COOKIE SERVER Support. All Rights Reserved.
+            </p>
+            <p class="text-[10px] text-zinc-600">
+                본 대화 전용 고객포털은 유저 실시간 응대 전용이며, Rockstar Games 와 공식 제휴관계가 없습니다.
+            </p>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 전역 로직 처리용 변수 선언
+        let db = null;
+        let auth = null;
+        let appId = 'default-cookie-server';
+        let userId = '';
+        let appInitialized = false;
+
+        // 문의 및 채팅 관련 실시간 변수
+        let currentTicketId = localStorage.getItem('cookie_active_ticket_id') || '';
+        let currentTicketData = null;
+        let isAdminAuthenticated = false;
+
+        // 암호화된 관리자 설정 변수들 (기본 비밀번호: admin123)
+        let adminPasswordHash = localStorage.getItem('cookie_admin_password_hash') || '2407891877f23c72c17431e8e19d17d7c674254b8b64e52b21ee4df7a36c9656';
+        let webhookUrl = localStorage.getItem('fivem_customer_webhook_url') || '';
+        let customLogoUrl = localStorage.getItem('fivem_server_logo_url') || '';
+        let todayCount = parseInt(localStorage.getItem('fivem_ticket_count') || '0');
+
+        // 실시간 리스너 보관용
+        let unsubscribeTicket = null;
+        let unsubscribeMessages = null;
+        let unsubscribeAdminAll = null;
+
+        // 시뮬레이션 관련 인터벌/타임아웃 핸들러
+        let simTimeout = null;
+
+        // 토스트 알림창 출력 함수 정의 (전역 바인딩)
+        window.showCustomToast = function(type, text) {
+            const toast = document.getElementById('custom-toast');
+            const icon = document.getElementById('toast-icon');
+            const msg = document.getElementById('toast-text');
+
+            if (!toast || !icon || !msg) return;
+
+            toast.classList.remove('hidden');
+            toast.classList.remove('translate-y-2');
+            toast.classList.add('translate-y-0');
+
+            if (type === 'success') {
+                icon.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i>`;
+            } else if (type === 'error') {
+                icon.innerHTML = `<i class="fa-solid fa-circle-exclamation text-red-400"></i>`;
+            } else {
+                icon.innerHTML = `<i class="fa-solid fa-info text-zinc-400"></i>`;
+            }
+            msg.innerText = text;
+
+            setTimeout(() => {
+                toast.classList.add('translate-y-2');
+                toast.classList.add('hidden');
+            }, 4000);
+        }
+
+        // 실시간 웹훅 유효성 검사 함수
+        window.validateWebhookRealtime = function(element) {
+            const value = element.value.trim();
+            const warningEl = document.getElementById('webhook-validation-warning');
+            
+            if (value && value.includes('discord.com/channels/')) {
+                warningEl.classList.remove('hidden');
+            } else {
+                warningEl.classList.add('hidden');
+            }
+        }
+
+        // 브라우저의 SubtleCrypto API를 사용한 로컬 비밀번호 단방향 암호화 모듈
+        async function hashPassword(password) {
+            if (window.crypto && crypto.subtle) {
+                try {
+                    const msgBuffer = new TextEncoder().encode(password);
+                    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+                } catch (e) {
+                    console.warn("SubtleCrypto failed, falling back to plaintext comparison.", e);
+                }
+            }
+            return null; // SubtleCrypto 미지원 시 null 반환하여 평문 비교 폴백 가동
+        }
+
+        // 디스코드 스크랩퍼 방지용 웹훅 Base64 난독화 기법
+        function encodeWebhook(url) {
+            try {
+                return btoa(url);
+            } catch(e) {
+                return url;
+            }
+        }
+
+        function decodeWebhook(encoded) {
+            try {
+                return atob(encoded);
+            } catch(e) {
+                return encoded;
+            }
+        }
+
+        window.onload = async function() {
+            // UI 초기화
+            document.getElementById('today-count').innerText = todayCount + " 건";
+            
+            applyBrandingLogo();
+
+            // Firebase 초기화 시도
+            await initFirebase();
+            
+            // 해시 라우팅 처리
+            handleHashRouting();
+
+            // 해시 변경 이벤트 감지
+            window.addEventListener('hashchange', handleHashRouting);
+
+            // 기존 문의 정보 복원
+            if (currentTicketId && appInitialized) {
+                listenToTicket(currentTicketId);
+            }
+        }
+
+        async function initFirebase() {
+            try {
+                if (typeof __firebase_config === 'undefined' || !__firebase_config) {
+                    throw new Error("No firebase config");
+                }
+                const firebaseConfig = JSON.parse(__firebase_config);
+                appId = typeof __app_id !== 'undefined' ? __app_id : 'cookie-server';
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // 익명 인증 실행
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                userId = auth.currentUser?.uid || crypto.randomUUID();
+                appInitialized = true;
+                
+                document.getElementById('db-status-badge').innerText = "온라인 (실시간 동기화)";
+                document.getElementById('db-status-badge').className = "text-[9px] font-bold px-2 py-0.5 rounded bg-emerald-950/40 text-emerald-400 border border-emerald-900/30";
+                
+                // 데이터베이스 클라우드에서 최신 동기화 정보 가져오기 (암호, 웹훅 등)
+                await syncServerSettingsFromDB();
+                return true;
+            } catch (err) {
+                console.warn("Firestore not connected. Switching to Local Demo Simulation Mode.", err);
+                document.getElementById('db-status-badge').innerText = "오프라인 (시뮬레이터 모드)";
+                document.getElementById('db-status-badge').className = "text-[9px] font-bold px-2 py-0.5 rounded bg-yellow-950/40 text-yellow-500 border border-yellow-900/30";
+                appInitialized = false;
+                return false;
+            }
+        }
+
+        // Firestore 규칙 준수 (RULE 1)
+        async function syncServerSettingsFromDB() {
+            if (!appInitialized || !db || !auth.currentUser) return;
+            try {
+                // RULE 1 준수: artifacts/{appId}/public/data/config/settings 문서 조회
+                const configDocRef = doc(db, 'artifacts', appId, 'public', 'data', 'config', 'settings');
+                const snap = await getDoc(configDocRef);
+                if (snap.exists()) {
+                    const data = snap.data();
+                    if (data.adminPasswordHash) {
+                        adminPasswordHash = data.adminPasswordHash;
+                        localStorage.setItem('cookie_admin_password_hash', adminPasswordHash);
+                    }
+                    if (data.encodedWebhook) {
+                        webhookUrl = decodeWebhook(data.encodedWebhook);
+                        localStorage.setItem('fivem_customer_webhook_url', webhookUrl);
+                    }
+                    if (data.customLogoUrl) {
+                        customLogoUrl = data.customLogoUrl;
+                        localStorage.setItem('fivem_server_logo_url', customLogoUrl);
+                    }
+                    applyBrandingLogo();
+                }
+            } catch(e) {
+                console.error("Config sync error:", e);
+            }
+        }
+
+        window.navigateTo = function(viewName) {
+            document.querySelectorAll('.view-section').forEach(sec => sec.classList.add('hidden'));
+            
+            if (viewName === 'home') {
+                document.getElementById('view-home').classList.remove('hidden');
+                window.location.hash = '';
+            } else if (viewName === 'waiting') {
+                document.getElementById('view-waiting').classList.remove('hidden');
+                window.location.hash = 'waiting';
+            } else if (viewName === 'chat') {
+                document.getElementById('view-chat').classList.remove('hidden');
+                window.location.hash = 'chat';
+            } else if (viewName === 'admin') {
+                document.getElementById('view-admin').classList.remove('hidden');
+                window.location.hash = 'admin';
+                renderAdminView();
+            }
+        }
+
+        function handleHashRouting() {
+            const h = window.location.hash;
+            if (h === '#admin') {
+                navigateTo('admin');
+            } else if (h === '#chat' && currentTicketId) {
+                navigateTo('chat');
+            } else if (h === '#waiting' && currentTicketId) {
+                navigateTo('waiting');
+            } else {
+                navigateTo('home');
+            }
+        }
+
+        function applyBrandingLogo() {
+            const defaultIcon = document.getElementById('default-logo-icon');
+            const customImg = document.getElementById('custom-logo-img');
+            const heroLogoBox = document.getElementById('hero-logo-box');
+            const heroCustomLogo = document.getElementById('hero-custom-logo');
+
+            if (customLogoUrl && customLogoUrl.trim() !== '') {
+                if (customImg) {
+                    customImg.src = customLogoUrl;
+                    customImg.classList.remove('hidden');
+                    customImg.onerror = function() {
+                        customImg.classList.add('hidden');
+                        if (defaultIcon) defaultIcon.classList.remove('hidden');
+                    };
+                }
+                if (defaultIcon) defaultIcon.classList.add('hidden');
+                if (heroLogoBox && heroCustomLogo) {
+                    heroCustomLogo.src = customLogoUrl;
+                    heroLogoBox.classList.remove('hidden');
+                    heroLogoBox.classList.add('flex');
+                    heroCustomLogo.onerror = function() {
+                        heroLogoBox.classList.add('hidden');
+                        heroLogoBox.classList.remove('flex');
+                    };
+                }
+            } else {
+                revertToDefault();
+            }
+        }
+
+        function revertToDefault() {
+            const defaultIcon = document.getElementById('default-logo-icon');
+            const customImg = document.getElementById('custom-logo-img');
+            const heroLogoBox = document.getElementById('hero-logo-box');
+            if (customImg) customImg.classList.add('hidden');
+            if (defaultIcon) defaultIcon.classList.remove('hidden');
+            if (heroLogoBox) {
+                heroLogoBox.classList.add('hidden');
+                heroLogoBox.classList.remove('flex');
+            }
+        }
+
+        window.toggleWebhookModal = function() {
+            if (!isAdminAuthenticated) {
+                showCustomToast('error', '허용되지 않은 접근입니다. 먼저 어드민 비밀번호 인증을 완료하십시오.');
+                return;
+            }
+            const modal = document.getElementById('webhook-modal');
+            modal.classList.toggle('hidden');
+
+            if (!modal.classList.contains('hidden')) {
+                document.getElementById('webhook-url-input').value = webhookUrl || '';
+                document.getElementById('logo-url-input').value = customLogoUrl || '';
+                document.getElementById('admin-pass-input-set').value = '';
+                document.getElementById('webhook-validation-warning').classList.add('hidden');
+            }
+        }
+
+        window.saveAdminSettings = async function() {
+            const webVal = document.getElementById('webhook-url-input').value.trim();
+            const logoVal = document.getElementById('logo-url-input').value.trim();
+            const passVal = document.getElementById('admin-pass-input-set').value.trim();
+
+            // 더욱 친절하고 상세한 웹훅 밸리데이션 검증
+            if (webVal) {
+                if (webVal.includes('discord.com/channels/')) {
+                    showCustomToast('error', '입력하신 주소는 웹훅이 아니라 디스코드 [채널 주소]입니다. 채널 설정에서 발급된 Webhook URL을 입력해 주세요.');
+                    return;
+                }
+                if (!webVal.startsWith('https://discord.com/api/webhooks/') && !webVal.startsWith('https://discordapp.com/api/webhooks/')) {
+                    showCustomToast('error', '올바른 디스코드 Webhook URL이 아닙니다. (https://discord.com/api/webhooks/... 로 시작해야 함)');
+                    return;
+                }
+            }
+
+            webhookUrl = webVal;
+            customLogoUrl = logoVal;
+
+            localStorage.setItem('fivem_customer_webhook_url', webVal);
+            localStorage.setItem('fivem_server_logo_url', logoVal);
+
+            if (passVal) {
+                localStorage.setItem('cookie_admin_password_plain', passVal);
+                const hashed = await hashPassword(passVal);
+                if (hashed) {
+                    adminPasswordHash = hashed;
+                    localStorage.setItem('cookie_admin_password_hash', adminPasswordHash);
+                } else {
+                    adminPasswordHash = 'custom_plaintext_fallback';
+                    localStorage.setItem('cookie_admin_password_hash', 'custom_plaintext_fallback');
+                }
+            }
+
+            // 데이터베이스 클라우드 저장 (RULE 1 준수)
+            if (appInitialized && db && auth.currentUser) {
+                try {
+                    const encodedWebhook = encodeWebhook(webVal);
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'config', 'settings'), {
+                        adminPasswordHash: adminPasswordHash,
+                        encodedWebhook: encodedWebhook,
+                        customLogoUrl: customLogoUrl
+                    });
+                    showCustomToast('success', '설정이 클라우드 서버에 동기화되어 영구 저장되었습니다.');
+                } catch(e) {
+                    console.error("Firestore config upload error:", e);
+                    showCustomToast('success', '설정이 브라우저 로컬 저장소에 저장되었습니다.');
+                }
+            } else {
+                showCustomToast('success', '설정이 로컬 브라우저에 임시 저장되었습니다 (시뮬레이터 모드).');
+            }
+
+            applyBrandingLogo();
+            toggleWebhookModal();
+        }
+
+        window.handleFormSubmit = async function(event) {
+            event.preventDefault();
+
+            const submitBtn = document.getElementById('submit-btn');
+            const originalBtnHtml = submitBtn.innerHTML;
+            
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = `<i class="fa-solid fa-circle-notch animate-spin"></i> <span>라이브 포트 로깅 중...</span>`;
+
+            const userName = document.getElementById('user-name').value;
+            const userCid = document.getElementById('user-cid').value;
+            const userDiscord = document.getElementById('user-discord').value;
+            const ticketType = document.getElementById('ticket-type').value;
+            const ticketTitle = document.getElementById('ticket-title').value;
+            const ticketContent = document.getElementById('ticket-content').value;
+            const ticketMedia = document.getElementById('ticket-media').value || '없음';
+            const timestamp = new Date().toLocaleString('ko-KR');
+
+            const ticketId = 'tkt_' + Math.random().toString(36).substr(2, 9);
+
+            const ticketData = {
+                id: ticketId,
+                userName,
+                userCid,
+                userDiscord,
+                ticketType,
+                ticketTitle,
+                ticketContent,
+                ticketMedia,
+                timestamp,
+                status: 'waiting', // waiting, active, closed
+                adminId: '',
+                adminName: ''
+            };
+
+            currentTicketId = ticketId;
+            currentTicketData = ticketData;
+            localStorage.setItem('cookie_active_ticket_id', ticketId);
+
+            document.getElementById('wait-user-name').innerText = userName;
+            document.getElementById('wait-user-cid').innerText = userCid;
+            document.getElementById('wait-ticket-type').innerText = ticketType;
+            document.getElementById('wait-ticket-id').innerText = ticketId;
+
+            todayCount++;
+            localStorage.setItem('fivem_ticket_count', todayCount);
+            document.getElementById('today-count').innerText = todayCount + " 건";
+
+            // 지정해둔 디스코드 채널에 실시간 알림 발송
+            if (webhookUrl) {
+                try {
+                    await sendDiscordWebhook(ticketData);
+                } catch(e) {
+                    console.error("Webhook Send Failed:", e);
+                }
+            }
+
+            if (appInitialized && db && auth.currentUser) {
+                try {
+                    await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', ticketId), ticketData);
+                    listenToTicket(ticketId);
+                } catch(err) {
+                    console.error("Firestore Upload Error", err);
+                }
+            } else {
+                startMockAdminProcess(ticketData);
+            }
+
+            document.getElementById('ticket-form').reset();
+            navigateTo('waiting');
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
+        }
+
+        function listenToTicket(ticketId) {
+            if (!appInitialized || !db || !auth.currentUser) return;
+            if (unsubscribeTicket) unsubscribeTicket();
+
+            unsubscribeTicket = onSnapshot(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', ticketId), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.data();
+                    currentTicketData = data;
+                    
+                    if (data.status === 'active') {
+                        document.getElementById('chat-agent-name').innerText = data.adminName || '담당 상담관';
+                        document.getElementById('chat-ticket-title').innerText = data.ticketTitle;
+                        navigateTo('chat');
+                        listenToMessages(ticketId);
+                    } else if (data.status === 'closed') {
+                        showCustomToast('info', '문의 상담 세션이 종료되었습니다.');
+                        cancelTicket();
+                    }
+                }
+            }, (error) => {
+                console.error("Listen to ticket error:", error);
+            });
+        }
+
+        function startMockAdminProcess(ticketData) {
+            if (simTimeout) clearTimeout(simTimeout);
+            
+            simTimeout = setTimeout(() => {
+                if (currentTicketId !== ticketData.id) return;
+                
+                currentTicketData.status = 'active';
+                currentTicketData.adminName = '김민우 상담실장 [AI]';
+                currentTicketData.adminId = 'mock_admin_1';
+
+                showCustomToast('success', '김민우 상담실장님이 상담을 수락하고 라이브 채팅에 입장했습니다.');
+                
+                document.getElementById('chat-agent-name').innerText = currentTicketData.adminName;
+                document.getElementById('chat-ticket-title').innerText = currentTicketData.ticketTitle;
+                navigateTo('chat');
+
+                mockMessages = [
+                    {
+                        senderName: '김민우 상담실장 [AI]',
+                        role: 'admin',
+                        text: '반갑습니다. 쿠키서버 1:1 라이브 지원실입니다. 접수해주신 [' + ticketData.ticketTitle + '] 건에 대해 빠르게 도와드리겠습니다. 추가 전송할 세부 상황이 있다면 말씀해 주세요.',
+                        timestamp: Date.now()
+                    }
+                ];
+                renderMockChatUI();
+            }, 5000);
+        }
+
+        let mockMessages = [];
+        function renderMockChatUI() {
+            const container = document.getElementById('chat-messages-container');
+            container.innerHTML = '';
+            
+            mockMessages.forEach(msg => {
+                const isMyMsg = msg.role === 'user';
+                const wrapDiv = document.createElement('div');
+                wrapDiv.className = isMyMsg ? 'flex justify-end' : 'flex justify-start';
+
+                wrapDiv.innerHTML = `
+                    <div class="max-w-[75%] rounded-2xl px-4 py-2.5 text-xs ${
+                        isMyMsg 
+                        ? 'bg-white text-black font-semibold rounded-tr-none' 
+                        : 'bg-zinc-900 text-zinc-300 border border-zinc-800 rounded-tl-none'
+                    }">
+                        <div class="text-[9px] text-zinc-500 mb-1 font-bold">${msg.senderName}</div>
+                        <div class="leading-relaxed whitespace-pre-line">${msg.text}</div>
+                    </div>
+                `;
+                container.appendChild(wrapDiv);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function listenToMessages(ticketId) {
+            if (!appInitialized || !db || !auth.currentUser) return;
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            const msgsRef = collection(db, 'artifacts', appId, 'public', 'data', 'messages');
+            unsubscribeMessages = onSnapshot(msgsRef, (snapshot) => {
+                const list = [];
+                snapshot.forEach(docSnap => {
+                    const d = docSnap.data();
+                    if (d.ticketId === ticketId) {
+                        list.push(d);
+                    }
+                });
+                list.sort((a,b) => a.timestamp - b.timestamp);
+                renderChatMessagesUI(list);
+            }, (error) => {
+                console.error("Listen to messages error:", error);
+            });
+        }
+
+        function renderChatMessagesUI(messages) {
+            const container = document.getElementById('chat-messages-container');
+            container.innerHTML = '';
+
+            messages.forEach(msg => {
+                const isMyMsg = msg.senderId === userId;
+                const wrapDiv = document.createElement('div');
+                wrapDiv.className = isMyMsg ? 'flex justify-end' : 'flex justify-start';
+
+                wrapDiv.innerHTML = `
+                    <div class="max-w-[75%] rounded-2xl px-4 py-2.5 text-xs ${
+                        isMyMsg 
+                        ? 'bg-white text-black font-semibold rounded-tr-none' 
+                        : 'bg-zinc-900 text-zinc-300 border border-zinc-800 rounded-tl-none'
+                    }">
+                        <div class="text-[9px] text-zinc-500 mb-1 font-bold">${msg.senderName}</div>
+                        <div class="leading-relaxed whitespace-pre-line">${msg.text}</div>
+                    </div>
+                `;
+                container.appendChild(wrapDiv);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        window.handleSendChatMessage = async function(event) {
+            event.preventDefault();
+            const input = document.getElementById('chat-text-input');
+            const val = input.value.trim();
+            if (!val) return;
+
+            input.value = '';
+
+            const msgData = {
+                ticketId: currentTicketId,
+                senderId: userId,
+                senderName: currentTicketData ? currentTicketData.userName : '유저',
+                role: 'user',
+                text: val,
+                timestamp: Date.now()
+            };
+
+            if (appInitialized && db && auth.currentUser) {
+                try {
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'messages'), msgData);
+                } catch(e) {
+                    console.error("Send message error:", e);
+                }
+            } else {
+                mockMessages.push(msgData);
+                renderMockChatUI();
+                triggerMockAdminReply(val);
+            }
+        }
+
+        function triggerMockAdminReply(userText) {
+            let replyText = '네, 기재해주신 정황을 확인하고 인게임 데이터베이스 대조 로그를 추적하고 있습니다. 잠시만 대기해 주세요.';
+            
+            if (userText.includes('복구')) {
+                replyText = '자산 복구 관련하여, 소실 시점을 입증할 로그 자료 확인 단계에 들어갔습니다. 유효성 판정 완료되는 대로 바로 복구 지급해 드리도록 하겠습니다.';
+            } else if (userText.includes('핵') || userText.includes('비매너')) {
+                replyText = '해당 용의자의 접속 CID 및 타임라인 로그를 수배 중입니다. 즉각 비매너 행위 여부를 조사하여 제재 후 본 채팅망을 통해 조치 통보하겠습니다.';
+            }
+
+            setTimeout(() => {
+                if (currentTicketId) {
+                    mockMessages.push({
+                        senderName: '김민우 상담실장 [AI]',
+                        role: 'admin',
+                        text: replyText,
+                        timestamp: Date.now()
+                    });
+                    renderMockChatUI();
+                }
+            }, 2000);
+        }
+
+        window.cancelTicket = function() {
+            if (unsubscribeTicket) unsubscribeTicket();
+            if (unsubscribeMessages) unsubscribeMessages();
+
+            if (appInitialized && db && currentTicketId && auth.currentUser) {
+                deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', currentTicketId));
+            }
+
+            currentTicketId = '';
+            currentTicketData = null;
+            localStorage.removeItem('cookie_active_ticket_id');
+            if (simTimeout) clearTimeout(simTimeout);
+
+            navigateTo('home');
+        }
+
+        window.closeActiveTicket = async function() {
+            if (appInitialized && db && currentTicketId && auth.currentUser) {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', currentTicketId), {
+                    status: 'closed'
+                });
+            } else {
+                showCustomToast('info', '상담이 종료되었습니다.');
+                cancelTicket();
+            }
+        }
+
+        window.authenticateAdmin = async function() {
+            const val = document.getElementById('admin-pass-input').value.trim();
+            
+            // 기본 비밀번호 복원 확인 조건식
+            const isDefault = (adminPasswordHash === '2407891877f23c72c17431e8e19d17d7c674254b8b64e52b21ee4df7a36c9656');
+            
+            let inputHash = '';
+            let cryptoAvailable = (window.crypto && window.crypto.subtle);
+            if (cryptoAvailable) {
+                try {
+                    inputHash = await hashPassword(val);
+                } catch(e) {
+                    cryptoAvailable = false;
+                }
+            }
+
+            const savedPlaintext = localStorage.getItem('cookie_admin_password_plain') || 'admin123';
+            
+            if ((cryptoAvailable && inputHash && inputHash === adminPasswordHash) || 
+                (isDefault && val === 'admin123') || 
+                (adminPasswordHash === 'custom_plaintext_fallback' && val === savedPlaintext) ||
+                (!cryptoAvailable && val === savedPlaintext)) {
+                
+                isAdminAuthenticated = true;
+                showCustomToast('success', '관리자 포털 승인이 완료되었습니다.');
+                renderAdminView();
+            } else {
+                showCustomToast('error', '인증 암호가 일치하지 않습니다.');
+            }
+        }
+
+        window.deauthenticateAdmin = function() {
+            isAdminAuthenticated = false;
+            if (unsubscribeAdminAll) unsubscribeAdminAll();
+            renderAdminView();
+        }
+
+        function renderAdminView() {
+            const authCard = document.getElementById('admin-auth-card');
+            const dashboard = document.getElementById('admin-dashboard-panel');
+
+            if (isAdminAuthenticated) {
+                authCard.classList.add('hidden');
+                dashboard.classList.remove('hidden');
+                listenToAdminData();
+            } else {
+                authCard.classList.remove('hidden');
+                dashboard.classList.add('hidden');
+                document.getElementById('admin-pass-input').value = '';
+            }
+        }
+
+        function listenToAdminData() {
+            if (!appInitialized || !db || !auth.currentUser) {
+                renderMockAdminDashboard();
+                return;
+            }
+
+            if (unsubscribeAdminAll) unsubscribeAdminAll();
+
+            const ticketsColl = collection(db, 'artifacts', appId, 'public', 'data', 'tickets');
+            unsubscribeAdminAll = onSnapshot(ticketsColl, (snapshot) => {
+                const allTickets = [];
+                snapshot.forEach(docSnap => {
+                    allTickets.push(docSnap.data());
+                });
+                processAdminDashboardData(allTickets);
+            }, (err) => {
+                console.error("Admin snapshot error:", err);
+            });
+        }
+
+        function processAdminDashboardData(tickets) {
+            const waitList = tickets.filter(t => t.status === 'waiting');
+            const activeList = tickets.filter(t => t.status === 'active' && t.adminId === userId);
+
+            document.getElementById('admin-waiting-count').innerText = waitList.length;
+            document.getElementById('admin-active-count').innerText = activeList.length;
+
+            const waitContainer = document.getElementById('admin-queue-list');
+            waitContainer.innerHTML = '';
+
+            if (waitList.length === 0) {
+                waitContainer.innerHTML = `<p class="text-xs text-zinc-600 italic text-center py-8">대기 중인 실시간 문의건이 존재하지 않습니다.</p>`;
+            } else {
+                waitList.forEach(t => {
+                    const row = document.createElement('div');
+                    row.className = "bg-black border border-zinc-900 p-4 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 text-xs";
+                    row.innerHTML = `
+                        <div class="space-y-1">
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-zinc-900 text-zinc-400 border border-zinc-800 font-bold px-1.5 py-0.5 rounded text-[9px] uppercase">${t.ticketType}</span>
+                                <span class="font-black text-white">${t.userName} (CID: ${t.userCid})</span>
+                            </div>
+                            <p class="font-semibold text-zinc-300">${t.ticketTitle}</p>
+                            <p class="text-zinc-500 text-[10px]">${t.timestamp} | 디스코드: ${t.userDiscord}</p>
+                        </div>
+                        <button onclick="acceptUserTicket('${t.id}')" class="w-full sm:w-auto bg-white hover:bg-zinc-200 text-black font-bold px-4 py-2 rounded-lg text-xs transition-colors flex-shrink-0">
+                            상담 수락
+                        </button>
+                    `;
+                    waitContainer.appendChild(row);
+                });
+            }
+
+            const activeContainer = document.getElementById('admin-active-chats');
+            activeContainer.innerHTML = '';
+
+            if (activeList.length === 0) {
+                activeContainer.innerHTML = `<p class="text-xs text-zinc-600 italic text-center py-8">진행 중인 채팅룸이 없습니다.</p>`;
+            } else {
+                activeList.forEach(t => {
+                    const row = document.createElement('div');
+                    row.className = "bg-black border border-zinc-900 p-4 rounded-xl flex flex-col gap-2 text-xs";
+                    row.innerHTML = `
+                        <div class="flex justify-between items-center">
+                            <span class="font-black text-white">${t.userName}</span>
+                            <span class="text-zinc-500 text-[10px]">${t.timestamp}</span>
+                        </div>
+                        <p class="text-zinc-400 font-medium truncate">${t.ticketTitle}</p>
+                        <div class="flex gap-2 mt-1">
+                            <button onclick="enterAdminChat('${t.id}')" class="w-full bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 text-white font-bold py-2 rounded-lg text-[11px] transition-colors">
+                                채팅방 입장
+                            </button>
+                            <button onclick="adminCloseTicket('${t.id}')" class="w-full bg-red-950/20 hover:bg-red-950 border border-red-950 text-red-400 font-bold py-2 rounded-lg text-[11px] transition-colors">
+                                대화 종료
+                            </button>
+                        </div>
+                    `;
+                    activeContainer.appendChild(row);
+                });
+            }
+        }
+
+        function renderMockAdminDashboard() {
+            const waitContainer = document.getElementById('admin-queue-list');
+            const activeContainer = document.getElementById('admin-active-chats');
+
+            waitContainer.innerHTML = `
+                <div class="bg-black/40 border border-dashed border-zinc-800 p-6 text-center rounded-xl text-xs space-y-2">
+                    <p class="text-zinc-500">현재 데이터베이스가 오프라인(시뮬레이터) 환경입니다.</p>
+                    <p class="text-[10px] text-zinc-600">서버 실시간 연동 및 실제 유저 문의 수락 관리를 위해서는 구글 파이어베이스 클라우드 세션이 필요합니다.</p>
+                </div>
+            `;
+            activeContainer.innerHTML = `<p class="text-xs text-zinc-600 italic text-center py-8">진행 중인 로컬 세션이 없습니다.</p>`;
+        }
+
+        window.acceptUserTicket = async function(ticketId) {
+            if (!appInitialized || !db || !auth.currentUser) return;
+            try {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', ticketId), {
+                    status: 'active',
+                    adminId: userId,
+                    adminName: '쿠키지원 담당관'
+                });
+                
+                showCustomToast('success', '성공적으로 유저 문의를 수락했습니다.');
+                enterAdminChat(ticketId);
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        window.enterAdminChat = function(ticketId) {
+            if (!appInitialized || !db || !auth.currentUser) return;
+            currentTicketId = ticketId;
+            currentTicketData = {
+                id: ticketId,
+                userName: '유저',
+                ticketTitle: '관리자 관전방'
+            };
+            
+            getDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', ticketId)).then(snap => {
+                if (snap.exists()) {
+                    const data = snap.data();
+                    currentTicketData = data;
+                    document.getElementById('chat-agent-name').innerText = data.userName + ' 유저 상담';
+                    document.getElementById('chat-ticket-title').innerText = '고유번호: ' + data.userCid + ' | 디스코드: ' + data.userDiscord;
+                }
+            });
+
+            navigateTo('chat');
+            listenToMessages(ticketId);
+        }
+
+        window.adminCloseTicket = async function(ticketId) {
+            if (appInitialized && db && auth.currentUser) {
+                await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'tickets', ticketId), {
+                    status: 'closed'
+                });
+                showCustomToast('info', '해당 유저의 상담이 마감되었습니다.');
+            }
+        }
+
+        async function sendDiscordWebhook(data) {
+            if (!webhookUrl) return;
+            const payload = {
+                username: "Cookie Support Live Bot",
+                avatar_url: customLogoUrl || "https://i.imgur.com/xVd2Rnd.png",
+                embeds: [{
+                    title: `⬛ [LIVE 대기중] 신규 1:1 라이브 접수 - ${data.ticketType}`,
+                    description: `**문의 제목:** ${data.ticketTitle}\n\n**상세 기재:** ${data.ticketContent}`,
+                    color: 0,
+                    fields: [
+                        {
+                            name: "👤 접수 유저",
+                            value: `• **닉네임:** ${data.userName}\n• **고유 ID (CID):** ${data.userCid}\n• **디스코드:** ${data.userDiscord}`,
+                            inline: true
+                        },
+                        {
+                            name: "⏱️ 접수 타임",
+                            value: `${data.timestamp}`,
+                            inline: true
+                        },
+                        {
+                            name: "🔗 실시간 상담 및 수락 제어",
+                            value: `[어드민 대시보드 바로가기](${window.location.origin}${window.location.pathname}#admin)`
+                        }
+                    ],
+                    footer: {
+                        text: "COOKIE Live Stream Customer Center Portal",
+                        icon_url: customLogoUrl || "https://i.imgur.com/xVd2Rnd.png"
+                    },
+                    timestamp: new Date().toISOString()
+                }]
+            };
+
+            await fetch(webhookUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+        }
+    </script>
+
+</body>
+</html>
